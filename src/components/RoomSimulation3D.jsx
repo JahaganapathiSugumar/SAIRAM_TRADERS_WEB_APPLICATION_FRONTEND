@@ -1,290 +1,316 @@
-import { useRef, useState, useEffect } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { OrbitControls, useTexture } from "@react-three/drei";
-import * as THREE from "three";
+import { useRef, useState } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
 
-const Room = ({ wallColor, floorColor, ceilingColor, accentWallColor, accentWallPosition }) => {
-  const roomRef = useRef()
-  
-  const width = 5
-  const height = 3
-  const depth = 4
-  
-  const floorTexture = useTexture('https://images.unsplash.com/photo-1567016432779-094069958ea5?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80')
-  floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping
-  floorTexture.repeat.set(2, 2)
-  
-  // Create materials once and reuse
-  const materials = {
-    wall: new THREE.MeshStandardMaterial({ 
-      color: wallColor,
-      roughness: 0.8,
-      metalness: 0.2
-    }),
-    accent: new THREE.MeshStandardMaterial({ 
-      color: accentWallColor,
-      roughness: 0.8,
-      metalness: 0.2
-    }),
-    floor: new THREE.MeshStandardMaterial({ 
-      color: floorColor,
-      map: floorTexture,
-      roughness: 0.8,
-      metalness: 0.2
-    }),
-    ceiling: new THREE.MeshStandardMaterial({ 
-      color: ceilingColor,
-      roughness: 0.8,
-      metalness: 0.2
-    })
-  }
-
-  // Update material colors when props change
-  useEffect(() => {
-    materials.wall.color.set(wallColor)
-    materials.accent.color.set(accentWallColor)
-    materials.floor.color.set(floorColor)
-    materials.ceiling.color.set(ceilingColor)
-  }, [wallColor, accentWallColor, floorColor, ceilingColor])
+// Room component with separate wall colors
+const Room = ({ roomType, wallColors }) => {
+  const roomRef = useRef();
+  const dimensions = {
+    'living-room': { width: 6, height: 3, depth: 5 },
+    'bedroom': { width: 4, height: 2.8, depth: 4 },
+    'kitchen': { width: 3.5, height: 2.8, depth: 4 },
+    'bathroom': { width: 2.5, height: 2.8, depth: 2.5 }
+  };
+  const { width, height, depth } = dimensions[roomType] || dimensions['living-room'];
 
   useFrame(() => {
     if (roomRef.current) {
-      roomRef.current.rotation.y += 0.001
+      roomRef.current.rotation.y += 0.001;
     }
-  })
+  });
 
-  // Helper function to determine wall material
-  const getWallMaterial = (position) => {
-    // accentWallPosition can be 'back', 'front', 'left', or 'right'
-    return position === accentWallPosition ? materials.accent : materials.wall;
-  }
+  const Furniture = () => {
+    switch (roomType) {
+      case 'living-room':
+        return (
+          <>
+            {/* Sofa */}
+            <mesh position={[0, -height/2 + 0.4, depth/3]} castShadow>
+              <boxGeometry args={[2.5, 0.8, 1]} />
+              <meshStandardMaterial color="#D8D0C0" />
+            </mesh>
+            {/* Coffee Table */}
+            <mesh position={[0, -height/2 + 0.3, 0]} castShadow>
+              <boxGeometry args={[1.2, 0.1, 0.8]} />
+              <meshStandardMaterial color="#8B4513" />
+            </mesh>
+            {/* TV */}
+            <mesh position={[0, 0.5, -depth/2 + 0.05]} castShadow>
+              <boxGeometry args={[1.2, 0.7, 0.05]} />
+              <meshStandardMaterial color="#222" />
+            </mesh>
+          </>
+        );
+      case 'bedroom':
+        return (
+          <>
+            {/* Bed */}
+            <mesh position={[0, -height/2 + 0.3, -depth/3]} castShadow>
+              <boxGeometry args={[2, 0.4, 2.2]} />
+              <meshStandardMaterial color="#E6E6FA" />
+            </mesh>
+            {/* Bedside Table */}
+            <mesh position={[1.2, -height/2 + 0.2, -depth/3]} castShadow>
+              <boxGeometry args={[0.5, 0.4, 0.5]} />
+              <meshStandardMaterial color="#8B4513" />
+            </mesh>
+            {/* Wardrobe */}
+            <mesh position={[-width/2 + 0.4, 0, 0]} castShadow>
+              <boxGeometry args={[0.6, 2, 1.2]} />
+              <meshStandardMaterial color="#deb887" />
+            </mesh>
+          </>
+        );
+      case 'kitchen':
+        return (
+          <>
+            {/* Counter */}
+            <mesh position={[-width/3, -height/2 + 0.5, -depth/3]} castShadow>
+              <boxGeometry args={[2, 1, 0.6]} />
+              <meshStandardMaterial color="#D8D0C0" />
+            </mesh>
+            {/* Upper Cabinets */}
+            <mesh position={[-width/3, height/4, -depth/2 + 0.3]} castShadow>
+              <boxGeometry args={[2, 1, 0.4]} />
+              <meshStandardMaterial color="#8B4513" />
+            </mesh>
+            {/* Fridge */}
+            <mesh position={[width/2 - 0.4, -height/2 + 1, depth/2 - 0.4]} castShadow>
+              <boxGeometry args={[0.6, 2, 0.6]} />
+              <meshStandardMaterial color="#b0c4de" />
+            </mesh>
+          </>
+        );
+      case 'bathroom':
+        return (
+          <>
+            {/* Vanity */}
+            <mesh position={[width/3, -height/2 + 0.4, -depth/2 + 0.3]} castShadow>
+              <boxGeometry args={[1.2, 0.8, 0.5]} />
+              <meshStandardMaterial color="#FFFFFF" />
+            </mesh>
+            {/* Mirror */}
+            <mesh position={[width/3, height/6, -depth/2 + 0.1]} castShadow>
+              <boxGeometry args={[0.8, 1, 0.1]} />
+              <meshStandardMaterial color="#C0C0C0" />
+            </mesh>
+            {/* Bathtub */}
+            <mesh position={[-width/3, -height/2 + 0.4, depth/3]} castShadow>
+              <boxGeometry args={[1.5, 0.5, 0.7]} />
+              <meshStandardMaterial color="#e0ffff" />
+            </mesh>
+          </>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
-    <group ref={roomRef} position={[0, 0, 0]}>
+    <group ref={roomRef}>
       {/* Floor */}
-      <mesh 
-        position={[0, -height/2, 0]} 
-        rotation={[-Math.PI/2, 0, 0]}
-        receiveShadow
-      >
+      <mesh position={[0, -height/2, 0]} rotation={[-Math.PI/2, 0, 0]} receiveShadow>
         <planeGeometry args={[width, depth]} />
-        <primitive object={materials.floor} />
-      </mesh>
-      
-      {/* Ceiling */}
-      <mesh 
-        position={[0, height/2, 0]} 
-        rotation={[Math.PI/2, 0, 0]}
-        receiveShadow
-      >
-        <planeGeometry args={[width, depth]} />
-        <primitive object={materials.ceiling} />
-      </mesh>
-      
-      {/* Back Wall */}
-      <mesh 
-        position={[0, 0, -depth/2]} 
-        receiveShadow
-        castShadow
-      >
-        <planeGeometry args={[width, height]} />
-        <primitive object={getWallMaterial('back')} />
-      </mesh>
-      
-      {/* Front Wall */}
-      <mesh 
-        position={[0, 0, depth/2]} 
-        rotation={[0, Math.PI, 0]}
-        receiveShadow
-        castShadow
-      >
-        <planeGeometry args={[width, height]} />
-        <primitive object={getWallMaterial('front')} />
-      </mesh>
-      
-      {/* Left Wall */}
-      <mesh 
-        position={[-width/2, 0, 0]} 
-        rotation={[0, Math.PI/2, 0]}
-        receiveShadow
-        castShadow
-      >
-        <planeGeometry args={[depth, height]} />
-        <primitive object={getWallMaterial('left')} />
-      </mesh>
-      
-      {/* Right Wall */}
-      <mesh 
-        position={[width/2, 0, 0]} 
-        rotation={[0, -Math.PI/2, 0]}
-        receiveShadow
-        castShadow
-      >
-        <planeGeometry args={[depth, height]} />
-        <primitive object={getWallMaterial('right')} />
-      </mesh>
-      
-      {/* Furniture */}
-      {/* Cabinet */}
-      <mesh position={[0, -height/2 + 0.4, -depth/2 + 1]} castShadow>
-        <boxGeometry args={[2.5, 0.8, 1]} />
-        <meshStandardMaterial color="#D8D0C0" />
-      </mesh>
-      
-      {/* Cabinet Top */}
-      <mesh position={[0, -height/2 + 0.8, -depth/2 + 0.6]} castShadow>
-        <boxGeometry args={[2.5, 0.8, 0.2]} />
-        <meshStandardMaterial color="#D8D0C0" />
-      </mesh>
-      
-      {/* Table */}
-      <mesh position={[0, -height/2 + 0.3, 0]} castShadow>
-        <boxGeometry args={[1.2, 0.1, 0.8]} />
         <meshStandardMaterial color="#8B4513" />
       </mesh>
-      
-      {/* Table Legs */}
-      {[[-0.5, -0.3], [0.5, -0.3], [-0.5, 0.3], [0.5, 0.3]].map((pos, i) => (
-        <mesh key={i} position={[pos[0], -height/2 + 0.15, pos[1]]} castShadow>
-          <cylinderGeometry args={[0.05, 0.05, 0.3]} />
-          <meshStandardMaterial color="#5D4037" />
-        </mesh>
-      ))}
-      
-      {/* Picture Frame */}
-      <mesh 
-        position={[0, 0, -depth/2 + 0.01]} 
-        castShadow
-      >
-        <planeGeometry args={[1.5, 1]} />
+      {/* Ceiling */}
+      <mesh position={[0, height/2, 0]} rotation={[Math.PI/2, 0, 0]} receiveShadow>
+        <planeGeometry args={[width, depth]} />
         <meshStandardMaterial color="#FFFFFF" />
       </mesh>
+      {/* Back Wall */}
+      <mesh position={[0, 0, -depth/2]} receiveShadow>
+        <planeGeometry args={[width, height]} />
+        <meshStandardMaterial color={wallColors.back} />
+      </mesh>
+      {/* Front Wall */}
+      <mesh position={[0, 0, depth/2]} rotation={[0, Math.PI, 0]} receiveShadow>
+        <planeGeometry args={[width, height]} />
+        <meshStandardMaterial color={wallColors.front} />
+      </mesh>
+      {/* Left Wall */}
+      <mesh position={[-width/2, 0, 0]} rotation={[0, Math.PI/2, 0]} receiveShadow>
+        <planeGeometry args={[depth, height]} />
+        <meshStandardMaterial color={wallColors.left} />
+      </mesh>
+      {/* Right Wall */}
+      <mesh position={[width/2, 0, 0]} rotation={[0, -Math.PI/2, 0]} receiveShadow>
+        <planeGeometry args={[depth, height]} />
+        <meshStandardMaterial color={wallColors.right} />
+      </mesh>
+      {/* Furniture */}
+      <Furniture />
     </group>
-  )
-}
+  );
+};
 
-const Scene = ({ wallColor, floorColor, ceilingColor, accentWallColor, accentWallPosition }) => {
-  const { camera } = useThree()
-  
-  useEffect(() => {
-    camera.position.set(0, 0, 6)
-    camera.lookAt(0, 0, 0)
-  }, [camera])
-
-  return (
-    <>
-      <ambientLight intensity={0.5} />
-      
-      <directionalLight 
-        position={[5, 5, 5]} 
-        intensity={1} 
-        castShadow 
-        shadow-mapSize-width={1024} 
-        shadow-mapSize-height={1024}
-      />
-      
-      <pointLight position={[0, 1, 0]} intensity={0.8} />
-      
-      <Room 
-        wallColor={wallColor} 
-        floorColor={floorColor} 
-        ceilingColor={ceilingColor} 
-        accentWallColor={accentWallColor}
-        accentWallPosition={accentWallPosition}
-      />
-      
-      <OrbitControls 
-        enableZoom={true}
-        enablePan={false}
-        minDistance={3}
-        maxDistance={10}
-        minPolarAngle={Math.PI/6}
-        maxPolarAngle={Math.PI/2}
-      />
-    </>
-  )
-}
-
-const RoomSimulation3D = ({ selectedColor }) => {
-  const [accentWallPosition, setAccentWallPosition] = useState('back')
-  const [floorColor, setFloorColor] = useState('#8B4513')
-  const [ceilingColor, setCeilingColor] = useState('#FFFFFF')
-  const [webGLSupported, setWebGLSupported] = useState(true)
-  
-  useEffect(() => {
-    try {
-      const canvas = document.createElement('canvas');
-      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-      setWebGLSupported(!!gl);
-    } catch (e) {
-      setWebGLSupported(false);
-    }
-  }, []);
-
-  if (!webGLSupported) {
-    return (
-      <div className="w-full h-[400px] bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
-        <div className="text-center p-8">
-          <h3 className="text-xl font-bold mb-4">3D Visualization Not Available</h3>
-          <p className="text-gray-600">
-            Your browser doesn't support WebGL, which is required for 3D visualization.
-            Please try using a modern browser like Chrome, Firefox, or Edge.
-          </p>
-        </div>
-      </div>
-    );
-  }
-  
-  return (
-    <div className="w-full h-[400px] bg-gray-100 rounded-lg overflow-hidden">
-      <div className="p-2 bg-white flex justify-between items-center">
-        <h3 className="font-medium">3D Room Simulation</h3>
-        <div className="flex space-x-2">
-          <select 
-            className="text-sm border rounded p-1"
-            value={accentWallPosition}
-            onChange={(e) => setAccentWallPosition(e.target.value)}
-          >
-            <option value="back">Accent: Back Wall</option>
-            <option value="front">Accent: Front Wall</option>
-            <option value="left">Accent: Left Wall</option>
-            <option value="right">Accent: Right Wall</option>
-          </select>
-        </div>
-      </div>
-      
-      <Canvas shadows>
-        <Scene 
-          wallColor="#F5F5F5" 
-          floorColor={floorColor} 
-          ceilingColor={ceilingColor} 
-          accentWallColor={selectedColor.hex || '#6A8CAF'}
-          accentWallPosition={accentWallPosition}
-        />
-      </Canvas>
-      
-      <div className="p-2 bg-white flex justify-between items-center">
-        <div className="flex items-center space-x-2">
-          <span className="text-sm">Floor:</span>
-          <input 
-            type="color" 
-            value={floorColor} 
-            onChange={(e) => setFloorColor(e.target.value)}
-            className="w-6 h-6 rounded"
-          />
-        </div>
-        <div className="flex items-center space-x-2">
-          <span className="text-sm">Ceiling:</span>
-          <input 
-            type="color" 
-            value={ceilingColor} 
-            onChange={(e) => setCeilingColor(e.target.value)}
-            className="w-6 h-6 rounded"
-          />
-        </div>
+const WallGuide = ({ wallColors }) => (
+  <div
+    style={{
+      position: "absolute",
+      top: 16,
+      left: 16,
+      zIndex: 20,
+      background: "#fff",
+      borderRadius: 6,
+      boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+      padding: 4,
+      width: 70,
+      fontSize: 10
+    }}
+  >
+    <div style={{ display: "flex", justifyContent: "center" }}>
+      <div
+        style={{
+          width: 35,
+          height: 12,
+          background: wallColors.back,
+          border: "1px solid #ccc",
+          textAlign: "center",
+          lineHeight: "12px",
+          fontWeight: "bold"
+        }}
+      >
+        Back
       </div>
     </div>
-  )
-}
+    <div style={{ display: "flex" }}>
+      <div
+        style={{
+          width: 12,
+          height: 35,
+          background: wallColors.left,
+          border: "1px solid #ccc",
+          textAlign: "center",
+          writingMode: "vertical-rl",
+          fontWeight: "bold"
+        }}
+      >
+        Left
+      </div>
+      <div
+        style={{
+          width: 35,
+          height: 35,
+          background: "#eee",
+          border: "1px solid #ccc"
+        }}
+      ></div>
+      <div
+        style={{
+          width: 12,
+          height: 35,
+          background: wallColors.right,
+          border: "1px solid #ccc",
+          textAlign: "center",
+          writingMode: "vertical-rl",
+          fontWeight: "bold"
+        }}
+      >
+        Right
+      </div>
+    </div>
+    <div style={{ display: "flex", justifyContent: "center" }}>
+      <div
+        style={{
+          width: 35,
+          height: 12,
+          background: wallColors.front,
+          border: "1px solid #ccc",
+          textAlign: "center",
+          lineHeight: "12px",
+          fontWeight: "bold"
+        }}
+      >
+        Front
+      </div>
+    </div>
+  </div>
+);
 
-export default RoomSimulation3D
+const sampleRooms = [
+  {
+    name: "Traditional Living Room",
+    url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    name: "Modern Indian Bedroom",
+    url: "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    name: "Indian Kitchen",
+    url: "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    name: "Colorful Indian Hall",
+    url: "https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=600&q=80"
+  }
+];
+
+const RoomSimulation3D = ({ roomType = "living-room" }) => {
+  const [wallColors, setWallColors] = useState({
+    back: "#F5F5F5",
+    front: "#F5F5F5",
+    left: "#F5F5F5",
+    right: "#F5F5F5",
+  });
+
+  return (
+    <div className="relative w-full" style={{ minHeight: "85vh", height: "85vh" }}>
+      {/* Tips at the top */}
+      <div className="w-full flex justify-center mb-2">
+        <div className="bg-blue-50 text-blue-900 rounded px-4 py-2 text-xs shadow font-medium max-w-xl">
+          <span className="font-bold">Tips:</span> Select a room type, choose a color for each wall, drag to rotate, and scroll to zoom in/out.
+        </div>
+      </div>
+      {/* Wall Guide in top-left */}
+      <WallGuide wallColors={wallColors} />
+      {/* Color pickers */}
+      <div className="flex flex-wrap gap-4 mb-4 bg-white p-2 rounded shadow max-w-md mx-auto">
+        {["back", "front", "left", "right"].map((wall) => (
+          <div key={wall} className="flex items-center gap-2">
+            <span className="capitalize">{wall} wall:</span>
+            <input
+              type="color"
+              value={wallColors[wall]}
+              onChange={e =>
+                setWallColors({ ...wallColors, [wall]: e.target.value })
+              }
+            />
+          </div>
+        ))}
+      </div>
+      {/* 3D Canvas */}
+      <div className="relative w-full h-full" style={{ minHeight: "70vh", height: "calc(100% - 110px)" }}>
+        <Canvas
+          shadows
+          style={{ width: "100%", height: "100%" }}
+          camera={{ position: [0, 3, 13], fov: 50, near: 0.1, far: 100 }}
+        >
+          <ambientLight intensity={0.5} />
+          <directionalLight
+            position={[5, 5, 5]}
+            intensity={1}
+            castShadow
+            shadow-mapSize-width={1024}
+            shadow-mapSize-height={1024}
+          />
+          <pointLight position={[0, 3, 0]} intensity={0.5} />
+          <Room roomType={roomType} wallColors={wallColors} />
+          <OrbitControls
+            makeDefault
+            enableZoom={true}
+            enablePan={false}
+            minDistance={6}
+            maxDistance={30}
+            target={[0, 0, 0]}
+            minPolarAngle={Math.PI / 6}
+            maxPolarAngle={Math.PI / 2}
+          />
+        </Canvas>
+      </div>
+    </div>
+  );
+};
+
+export default RoomSimulation3D;

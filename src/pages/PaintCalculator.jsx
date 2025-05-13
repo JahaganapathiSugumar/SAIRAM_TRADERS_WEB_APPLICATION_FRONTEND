@@ -1,8 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { FaCalculator, FaPaintRoller, FaInfoCircle } from 'react-icons/fa';
 import { paintProducts } from './ProductCatalog';
+import { LanguageContext } from '../context/LanguageContext';
 
 const PaintCalculator = () => {
+  const { translations } = useContext(LanguageContext);
+
   const [dimensions, setDimensions] = useState({
     length: '',
     width: '',
@@ -66,8 +69,8 @@ const PaintCalculator = () => {
       {/* Hero Section */}
       <div className="bg-primary text-white py-12">
         <div className="container-custom">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">Paint Calculator</h1>
-          <p className="text-xl">Calculate the exact amount of paint needed for your project.</p>
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">{translations.paintCalculator}</h1>
+          <p className="text-xl">{translations.paintCalculatorDesc}</p>
         </div>
       </div>
 
@@ -76,13 +79,13 @@ const PaintCalculator = () => {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
             <div className="flex items-center mb-6">
               <FaCalculator className="text-primary text-3xl mr-2" />
-              <h2 className="text-2xl font-bold dark:text-white">Paint Calculator</h2>
+              <h2 className="text-2xl font-bold dark:text-white">{translations.paintCalculator}</h2>
             </div>
 
             {/* Paint Product Selection */}
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Select Paint Product
+                {translations.selectPaintProduct}
               </label>
               <select
                 value={selectedPaintId}
@@ -101,7 +104,7 @@ const PaintCalculator = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Room Length (meters)
+                  {translations.roomLength}
                 </label>
                 <input
                   type="number"
@@ -116,7 +119,7 @@ const PaintCalculator = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Room Width (meters)
+                  {translations.roomWidth}
                 </label>
                 <input
                   type="number"
@@ -131,7 +134,7 @@ const PaintCalculator = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Room Height (meters)
+                  {translations.roomHeight}
                 </label>
                 <input
                   type="number"
@@ -146,7 +149,7 @@ const PaintCalculator = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Number of Coats
+                  {translations.numberOfCoats}
                 </label>
                 <select
                   name="coats"
@@ -154,20 +157,20 @@ const PaintCalculator = () => {
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border rounded-md focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 >
-                  <option value="1">1 Coat</option>
-                  <option value="2">2 Coats</option>
-                  <option value="3">3 Coats</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
                 </select>
               </div>
             </div>
 
             {/* Doors and Windows Section */}
             <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-4 dark:text-white">Doors and Windows</h3>
+              <h3 className="text-lg font-semibold mb-4 dark:text-white">{translations.numberOfDoors} & {translations.numberOfWindows}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Number of Doors
+                    {translations.numberOfDoors}
                   </label>
                   <input
                     type="number"
@@ -181,7 +184,7 @@ const PaintCalculator = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Number of Windows
+                    {translations.numberOfWindows}
                   </label>
                   <input
                     type="number"
@@ -200,22 +203,22 @@ const PaintCalculator = () => {
               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
                 <div className="flex items-center justify-center mb-4">
                   <FaPaintRoller className="text-primary text-2xl mr-2" />
-                  <h3 className="text-lg font-semibold dark:text-white">Results</h3>
+                  <h3 className="text-lg font-semibold dark:text-white">{translations.results}</h3>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <p className="text-gray-700 dark:text-gray-300">
-                      Total Wall Area: <span className="font-semibold">{results.totalArea} m²</span>
+                      {translations.totalWallArea}: <span className="font-semibold">{results.totalArea} m²</span>
                     </p>
                     <p className="text-gray-700 dark:text-gray-300">
-                      Paintable Area: <span className="font-semibold">{results.paintableArea} m²</span>
+                      {translations.paintableArea}: <span className="font-semibold">{results.paintableArea} m²</span>
                     </p>
                     <p className="text-gray-700 dark:text-gray-300">
-                      Paint Needed ({dimensions.coats} coats): <span className="font-semibold">{results.litersNeeded} liters</span>
+                      {translations.paintNeeded} ({dimensions.coats} {translations.numberOfCoats.toLowerCase()}): <span className="font-semibold">{results.litersNeeded} liters</span>
                     </p>
                     <p className="text-gray-700 dark:text-gray-300">
-                      Estimated Cost: <span className="font-semibold">₹{results.estimatedCost}</span>
+                      {translations.estimatedCost}: <span className="font-semibold">₹{results.estimatedCost}</span>
                     </p>
                   </div>
                 </div>
@@ -225,12 +228,12 @@ const PaintCalculator = () => {
                     <FaInfoCircle className="text-yellow-600 dark:text-yellow-400 mt-1 mr-2" />
                     <div>
                       <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                        This calculation includes:
+                        {translations.calculationIncludes}
                       </p>
                       <ul className="list-disc list-inside text-sm text-yellow-700 dark:text-yellow-300 mt-1">
-                        <li>{dimensions.coats} coat(s) of paint</li>
-                        <li>Standard coverage of 10m² per liter</li>
-                        <li>Premium paint quality</li>
+                        <li>{translations.coatsOfPaint.replace("{{count}}", dimensions.coats)}</li>
+                        <li>{translations.standardCoverage}</li>
+                        <li>{translations.premiumPaintQuality}</li>
                       </ul>
                     </div>
                   </div>

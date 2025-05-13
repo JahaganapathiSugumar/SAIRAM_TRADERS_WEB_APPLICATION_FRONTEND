@@ -1,545 +1,387 @@
-import { useState, useRef, useEffect } from 'react'
+import { useContext, useState, useRef, useEffect } from 'react'
 import { FaUpload, FaUndo, FaRedo, FaDownload, FaPalette, FaCube, FaTrash, FaInfoCircle } from 'react-icons/fa'
 import RoomSimulation3D from '../components/RoomSimulation3D'
+import { LanguageContext } from '../context/LanguageContext';
 
 const ColorVisualizer = () => {
-  const roomImages = [
-    {
-      id: 'living-room',
-      name: 'Living Room',
-      src: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80',
-      description: 'A cozy living room where family and friends gather. Choose warm, inviting colors for a welcoming atmosphere.',
-      walls: [
-        {id: 'wall1', name: 'Main Wall', x: 0.2, y: 0.3, width: 0.6, height: 0.5},
-        {id: 'wall2', name: 'Side Wall', x: 0.05, y: 0.3, width: 0.15, height: 0.5}
-      ]
-    },
-    {
-      id: 'bedroom',
-      name: 'Bedroom',
-      src: 'hhttps://res.cloudinary.com/dyxu6ylng/image/upload/v1747099147/download_kijv9u.jpg',
-      description: 'Your personal sanctuary for rest and relaxation. Consider calming blues or soft neutrals for a peaceful sleep environment.',
-      walls: [
-        {id: 'wall1', name: 'Bed Wall', x: 0.1, y: 0.2, width: 0.8, height: 0.6},
-        {id: 'wall2', name: 'Side Wall', x: 0.1, y: 0.2, width: 0.2, height: 0.6}
-      ]
-    },
-    {
-      id: 'kitchen',
-      name: 'Kitchen',
-      src: 'https://res.cloudinary.com/dyxu6ylng/image/upload/v1747099117/images_e5bxtt.jpg',
-      description: 'The heart of your home where meals are prepared. Bright, energetic colors can stimulate appetite and conversation.',
-      walls: [
-        {id: 'wall1', name: 'Main Wall', x: 0.1, y: 0.1, width: 0.8, height: 0.5},
-        {id: 'wall2', name: 'Cabinet Wall', x: 0.1, y: 0.1, width: 0.4, height: 0.5}
-      ]
-    },
-    {
-      id: 'exterior',
-      name: 'House Exterior',
-      src: 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80',
-      description: 'The first impression of your home. Choose colors that complement your surroundings and reflect your personal style.',
-      walls: [
-        {id: 'wall1', name: 'Front Wall', x: 0.2, y: 0.2, width: 0.6, height: 0.6},
-        {id: 'wall2', name: 'Side Wall', x: 0.05, y: 0.2, width: 0.15, height: 0.6}
-      ]
-    }
-  ]
-
-  const paintColors = [
-    { name: "Serene Blue", hex: "#6A8CAF", description: "A calming blue that brings tranquility" },
-    { name: "Sage Green", hex: "#9CAF88", description: "An earthy green that connects with nature" },
-    { name: "Terracotta", hex: "#CD5C45", description: "A warm, earthy tone for coziness" },
-    { name: "Dusty Rose", hex: "#D8A9A9", description: "A soft, muted pink for subtle warmth" },
-    { name: "Midnight Navy", hex: "#1D3461", description: "A deep, sophisticated navy" },
-    { name: "Golden Hour", hex: "#DCAE62", description: "A warm gold capturing sunset magic" },
-    { name: "Soft White", hex: "#F5F5F5", description: "A clean, versatile white" },
-    { name: "Charcoal", hex: "#36454F", description: "A rich, modern neutral" },
-    { name: "Mint Green", hex: "#98FB98", description: "A fresh, invigorating green" },
-    { name: "Lavender", hex: "#E6E6FA", description: "A gentle, soothing purple" }
-  ]
-
-  const [selectedRoom, setSelectedRoom] = useState(roomImages[0])
-  const [selectedColor, setSelectedColor] = useState(paintColors[0])
-  const [customColor, setCustomColor] = useState('#6A8CAF')
+  const { translations } = useContext(LanguageContext);
+  const [visualizationMode, setVisualizationMode] = useState('2d')
+  const [selectedRoom, setSelectedRoom] = useState('living-room')
+  const [selectedColor, setSelectedColor] = useState({ hex: '#6A8CAF', name: 'Serene Blue' })
   const [uploadedImage, setUploadedImage] = useState(null)
+  const [activeWall, setActiveWall] = useState(null)
+  const [selectedWalls, setSelectedWalls] = useState({})
   const [history, setHistory] = useState([])
   const [historyIndex, setHistoryIndex] = useState(-1)
-  const [opacity, setOpacity] = useState(0.7)
-  const [visualizationMode, setVisualizationMode] = useState('2d')
-  const [selectedWalls, setSelectedWalls] = useState({})
-  const [activeWall, setActiveWall] = useState(null)
-  const [showTip, setShowTip] = useState(true)
-  
   const canvasRef = useRef(null)
   const fileInputRef = useRef(null)
 
+  const rooms = {
+    'living-room': {
+      name: 'Living Room',
+      walls: ['Back Wall', 'Front Wall', 'Left Wall', 'Right Wall'],
+      defaultImage: 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg'
+    },
+    'bedroom': {
+      name: 'Bedroom',
+      walls: ['Back Wall', 'Front Wall', 'Left Wall', 'Right Wall'],
+      defaultImage: 'https://images.pexels.com/photos/1454806/pexels-photo-1454806.jpeg'
+    },
+    'kitchen': {
+      name: 'Kitchen',
+      walls: ['Back Wall', 'Front Wall', 'Left Wall', 'Right Wall'],
+      defaultImage: 'https://images.pexels.com/photos/3214064/pexels-photo-3214064.jpeg'
+    },
+    'bathroom': {
+      name: 'Bathroom',
+      walls: ['Back Wall', 'Front Wall', 'Left Wall', 'Right Wall'],
+      defaultImage: 'https://images.pexels.com/photos/6585757/pexels-photo-6585757.jpeg'
+    }
+  }
+
+  const colors = [
+    { name: "Serene Blue", hex: "#6A8CAF" },
+    { name: "Sage Green", hex: "#9CAF88" },
+    { name: "Terracotta", hex: "#CD5C45" },
+    { name: "Dusty Rose", hex: "#D8A9A9" },
+    { name: "Midnight Navy", hex: "#1D3461" },
+    { name: "Golden Hour", hex: "#DCAE62" },
+    { name: "Soft White", hex: "#F5F5F5" },
+    { name: "Charcoal", hex: "#36454F" },
+    { name: "Mint Green", hex: "#98FB98" },
+    { name: "Lavender", hex: "#E6E6FA" }
+  ]
+
   useEffect(() => {
     if (visualizationMode === '2d') {
-      const canvas = canvasRef.current
-      const ctx = canvas.getContext('2d')
-      
-      const img = new Image()
-      img.crossOrigin = "Anonymous"
-      img.src = uploadedImage || selectedRoom.src
-      
-      img.onload = () => {
-        canvas.width = img.width
-        canvas.height = img.height
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-        
-        if (!uploadedImage) {
-          Object.entries(selectedWalls).forEach(([wallId, colorInfo]) => {
-            const wall = selectedRoom.walls.find(w => w.id === wallId)
-            if (wall) {
-              applyColorToWall(ctx, canvas, wall, colorInfo.color, colorInfo.opacity)
-            }
-          })
-        }
-        
-        if (historyIndex === history.length - 1 || historyIndex === -1) {
-          const newHistoryItem = canvas.toDataURL()
-          setHistory([...history.slice(0, historyIndex + 1), newHistoryItem])
-          setHistoryIndex(historyIndex + 1)
-        }
-      }
+      loadImage(uploadedImage || rooms[selectedRoom].defaultImage);
     }
-  }, [selectedRoom, uploadedImage, visualizationMode, selectedWalls])
+  }, [visualizationMode, selectedRoom, uploadedImage]);
 
-  useEffect(() => {
-    setSelectedWalls({})
-    setActiveWall(null)
-  }, [selectedRoom])
-
-  const applyColorToWall = (ctx, canvas, wall, color, wallOpacity = opacity) => {
-    const x = wall.x * canvas.width
-    const y = wall.y * canvas.height
-    const width = wall.width * canvas.width
-    const height = wall.height * canvas.height
-    
-    ctx.fillStyle = color
-    ctx.globalAlpha = wallOpacity
-    ctx.fillRect(x, y, width, height)
-    ctx.globalAlpha = 1.0
-  }
-
-  const handleRoomChange = (room) => {
-    setSelectedRoom(room)
-    setUploadedImage(null)
-  }
-
-  const handleColorChange = (color) => {
-    setSelectedColor(color)
-    setCustomColor(color.hex)
-    
-    if (activeWall) {
-      applyColorToActiveWall(color.hex)
-    }
-  }
-
-  const handleCustomColorChange = (e) => {
-    setCustomColor(e.target.value)
-    setSelectedColor({ name: "Custom", hex: e.target.value })
-    
-    if (activeWall) {
-      applyColorToActiveWall(e.target.value)
-    }
-  }
-
-  const applyColorToActiveWall = (color) => {
-    if (!activeWall) return
-    
-    const canvas = canvasRef.current
-    const ctx = canvas.getContext('2d')
-    const wall = selectedRoom.walls.find(w => w.id === activeWall)
-    if (!wall) return
-    
-    const img = new Image()
-    img.crossOrigin = "Anonymous"
-    img.src = uploadedImage || selectedRoom.src
-    
+  const loadImage = (src) => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
     img.onload = () => {
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-      
-      const updatedWalls = {
-        ...selectedWalls,
-        [activeWall]: { color, opacity }
-      }
-      setSelectedWalls(updatedWalls)
-      
-      Object.entries(updatedWalls).forEach(([wallId, colorInfo]) => {
-        const w = selectedRoom.walls.find(w => w.id === wallId)
-        if (w) {
-          applyColorToWall(ctx, canvas, w, colorInfo.color, colorInfo.opacity)
-        }
-      })
-      
-      const newHistoryItem = canvas.toDataURL()
-      setHistory([...history.slice(0, historyIndex + 1), newHistoryItem])
-      setHistoryIndex(historyIndex + 1)
-    }
-  }
-
-  const handleWallSelect = (wallId) => {
-    setActiveWall(wallId)
-    setShowTip(false)
-  }
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+      addToHistory(canvas.toDataURL());
+    };
+    img.src = src;
+  };
 
   const handleFileUpload = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      const reader = new FileReader()
+    const file = e.target.files[0];
+    if (file && visualizationMode === '2d') {
+      const reader = new FileReader();
       reader.onload = (event) => {
-        setUploadedImage(event.target.result)
-        setSelectedWalls({})
-        setActiveWall(null)
-      }
-      reader.readAsDataURL(file)
+        setUploadedImage(event.target.result);
+        setSelectedWalls({});
+        setActiveWall(null);
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
+
+  const handleColorSelect = (color) => {
+    setSelectedColor(color);
+    if (activeWall) {
+      applyColorToWall(color.hex);
+    }
+  };
+
+  const applyColorToWall = (color) => {
+    if (!activeWall || visualizationMode !== '2d') return;
+    
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    
+    // Save current canvas state
+    const currentState = canvas.toDataURL();
+    
+    // Apply color overlay to selected wall area
+    ctx.fillStyle = color;
+    ctx.globalAlpha = 0.5;
+    
+    // Define wall areas (simplified example - you'd need to implement proper wall area selection)
+    const wallAreas = {
+      'Back Wall': [0, 0, canvas.width * 0.8, canvas.height * 0.8],
+      'Front Wall': [canvas.width * 0.2, canvas.height * 0.2, canvas.width * 0.6, canvas.height * 0.6],
+      'Left Wall': [0, 0, canvas.width * 0.3, canvas.height],
+      'Right Wall': [canvas.width * 0.7, 0, canvas.width * 0.3, canvas.height]
+    };
+    
+    const area = wallAreas[activeWall];
+    if (area) {
+      ctx.fillRect(...area);
+    }
+    
+    ctx.globalAlpha = 1.0;
+    
+    // Add to history
+    addToHistory(canvas.toDataURL());
+  };
+
+  const addToHistory = (state) => {
+    setHistory([...history.slice(0, historyIndex + 1), state]);
+    setHistoryIndex(historyIndex + 1);
+  };
 
   const handleUndo = () => {
     if (historyIndex > 0) {
-      setHistoryIndex(historyIndex - 1)
-      const img = new Image()
-      img.src = history[historyIndex - 1]
-      img.onload = () => {
-        const canvas = canvasRef.current
-        const ctx = canvas.getContext('2d')
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        ctx.drawImage(img, 0, 0)
-      }
+      setHistoryIndex(historyIndex - 1);
+      loadHistoryState(historyIndex - 1);
     }
-  }
+  };
 
   const handleRedo = () => {
     if (historyIndex < history.length - 1) {
-      setHistoryIndex(historyIndex + 1)
-      const img = new Image()
-      img.src = history[historyIndex + 1]
-      img.onload = () => {
-        const canvas = canvasRef.current
-        const ctx = canvas.getContext('2d')
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        ctx.drawImage(img, 0, 0)
-      }
+      setHistoryIndex(historyIndex + 1);
+      loadHistoryState(historyIndex + 1);
     }
-  }
+  };
+
+  const loadHistoryState = (index) => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+    };
+    img.src = history[index];
+  };
 
   const handleDownload = () => {
-    if (visualizationMode === '2d') {
-      const canvas = canvasRef.current
-      const image = canvas.toDataURL("image/png")
-      const link = document.createElement('a')
-      link.download = `colorcraft-visualization-${new Date().getTime()}.png`
-      link.href = image
-      link.click()
-    } else {
-      alert('3D visualization download coming soon!')
+    if (visualizationMode === '2d' && canvasRef.current) {
+      const link = document.createElement('a');
+      link.download = 'color-visualization.png';
+      link.href = canvasRef.current.toDataURL();
+      link.click();
     }
-  }
-
-  const handleOpacityChange = (e) => {
-    const newOpacity = parseFloat(e.target.value)
-    setOpacity(newOpacity)
-    
-    if (activeWall && selectedWalls[activeWall]) {
-      const updatedWalls = {
-        ...selectedWalls,
-        [activeWall]: { 
-          ...selectedWalls[activeWall],
-          opacity: newOpacity 
-        }
-      }
-      setSelectedWalls(updatedWalls)
-      
-      const canvas = canvasRef.current
-      const ctx = canvas.getContext('2d')
-      const img = new Image()
-      img.crossOrigin = "Anonymous"
-      img.src = uploadedImage || selectedRoom.src
-      
-      img.onload = () => {
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-        
-        Object.entries(updatedWalls).forEach(([wallId, colorInfo]) => {
-          const wall = selectedRoom.walls.find(w => w.id === wallId)
-          if (wall) {
-            applyColorToWall(ctx, canvas, wall, colorInfo.color, colorInfo.opacity)
-          }
-        })
-      }
-    }
-  }
-
-  const handleClearColors = () => {
-    setSelectedWalls({})
-    setActiveWall(null)
-    
-    const canvas = canvasRef.current
-    const ctx = canvas.getContext('2d')
-    const img = new Image()
-    img.crossOrigin = "Anonymous"
-    img.src = uploadedImage || selectedRoom.src
-    
-    img.onload = () => {
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-      
-      const newHistoryItem = canvas.toDataURL()
-      setHistory([...history.slice(0, historyIndex + 1), newHistoryItem])
-      setHistoryIndex(historyIndex + 1)
-    }
-  }
-
-  const toggleVisualizationMode = () => {
-    setVisualizationMode(visualizationMode === '2d' ? '3d' : '2d')
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-primary text-white">
-        <div className="container-custom py-12">
-          <h1 className="text-4xl font-bold mb-4">Color Visualizer</h1>
-          <p className="text-xl opacity-90">Transform your space with our interactive color visualization tool</p>
+      <div className="bg-primary text-white py-8">
+        <div className="container mx-auto px-4">
+          <h1 className="text-3xl font-bold mb-2">{translations.colorVisualizer}</h1>
+          <p className="text-lg opacity-90">{translations.colorVisualizerDesc}</p>
         </div>
       </div>
 
-      <div className="container-custom py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Left Sidebar */}
-          <div className="lg:col-span-3 space-y-6">
-            {/* Room Selection */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-xl font-semibold mb-4">Choose a Room</h2>
-              <div className="grid grid-cols-2 gap-3">
-                {roomImages.map((room) => (
-                  <button
-                    key={room.id}
-                    onClick={() => handleRoomChange(room)}
-                    className={`relative rounded-lg overflow-hidden transition-all ${
-                      selectedRoom.id === room.id ? 'ring-2 ring-primary' : 'hover:ring-2 hover:ring-gray-200'
-                    }`}
-                  >
-                    <img 
-                      src={room.src} 
-                      alt={room.name}
-                      className="w-full h-24 object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
-                      <span className="text-white text-sm font-medium">{room.name}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-              
-              <div className="mt-4 text-sm text-gray-600">
-                <p>{selectedRoom.description}</p>
-              </div>
-
-              <div className="mt-4">
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Left Sidebar - Controls */}
+          <div className="lg:w-1/4 space-y-6">
+            {/* Visualization Mode Toggle */}
+            <div className="bg-white rounded-lg p-4 shadow">
+              <h2 className="text-lg font-semibold mb-4">{translations.visualizationMode}</h2>
+              <div className="flex gap-2">
                 <button
-                  onClick={() => fileInputRef.current.click()}
-                  className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                  onClick={() => setVisualizationMode('2d')}
+                  className={`flex-1 py-2 px-4 rounded ${
+                    visualizationMode === '2d'
+                      ? 'bg-primary text-white'
+                      : 'bg-gray-100 hover:bg-gray-200'
+                  }`}
                 >
-                  <FaUpload className="mr-2" />
-                  Upload Your Own Image
+                  {translations.view2d}
                 </button>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileUpload}
-                  accept="image/*"
-                  className="hidden"
-                />
+                <button
+                  onClick={() => setVisualizationMode('3d')}
+                  className={`flex-1 py-2 px-4 rounded ${
+                    visualizationMode === '3d'
+                      ? 'bg-primary text-white'
+                      : 'bg-gray-100 hover:bg-gray-200'
+                  }`}
+                >
+                  {translations.view3d}
+                </button>
               </div>
             </div>
 
+            {/* Room Selection */}
+            <div className="bg-white rounded-lg p-4 shadow">
+              <h2 className="text-lg font-semibold mb-4">{translations.selectRoom}</h2>
+              <div className="grid grid-cols-2 gap-2">
+                {Object.entries(rooms).map(([id, room]) => (
+                  <button
+                    key={id}
+                    onClick={() => {
+                      setSelectedRoom(id);
+                      if (visualizationMode === '2d') {
+                        setUploadedImage(null);
+                      }
+                    }}
+                    className={`p-2 rounded ${
+                      selectedRoom === id
+                        ? 'bg-primary text-white'
+                        : 'bg-gray-100 hover:bg-gray-200'
+                    }`}
+                  >
+                    {room.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Image Upload (2D Mode Only) */}
+            {visualizationMode === '2d' && (
+              <div className="bg-white rounded-lg p-4 shadow">
+                <h2 className="text-lg font-semibold mb-4">{translations.roomImage}</h2>
+                <div className="space-y-4">
+                  <button
+                    onClick={() => fileInputRef.current.click()}
+                    className="w-full py-3 px-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-primary hover:text-primary transition-colors"
+                  >
+                    <FaUpload className="inline-block mr-2" />
+                    {translations.uploadRoomPhoto}
+                  </button>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                  <p className="text-sm text-gray-500">
+                    {translations.sampleRoomText}
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Color Selection */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-xl font-semibold mb-4">Choose Colors</h2>
-              
-              <div className="grid grid-cols-5 gap-2 mb-6">
-                {paintColors.map((color) => (
+            <div className="bg-white rounded-lg p-4 shadow">
+              <h2 className="text-lg font-semibold mb-4">{translations.chooseColor}</h2>
+              <div className="grid grid-cols-5 gap-2 mb-4">
+                {colors.map((color) => (
                   <button
                     key={color.hex}
-                    onClick={() => handleColorChange(color)}
+                    onClick={() => handleColorSelect(color)}
                     className={`w-8 h-8 rounded-full transition-transform ${
-                      selectedColor.hex === color.hex ? 'ring-2 ring-offset-2 ring-primary scale-110' : 'hover:scale-110'
+                      selectedColor.hex === color.hex ? 'ring-2 ring-primary scale-110' : 'hover:scale-110'
                     }`}
                     style={{ backgroundColor: color.hex }}
                     title={color.name}
                   />
                 ))}
               </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Custom Color
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="color"
-                      value={customColor}
-                      onChange={handleCustomColorChange}
-                      className="h-10 w-10 rounded"
-                    />
-                    <input
-                      type="text"
-                      value={customColor}
-                      onChange={handleCustomColorChange}
-                      className="flex-1 px-3 py-2 border rounded-lg"
-                      placeholder="#000000"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Color Opacity: {Math.round(opacity * 100)}%
-                  </label>
-                  <input
-                    type="range"
-                    min="0.1"
-                    max="1"
-                    step="0.05"
-                    value={opacity}
-                    onChange={handleOpacityChange}
-                    className="w-full"
-                  />
-                </div>
+              <div className="p-3 bg-gray-50 rounded">
+                <p className="font-medium">{selectedColor.name}</p>
+                <p className="text-sm text-gray-600">{selectedColor.hex}</p>
               </div>
             </div>
 
             {/* Wall Selection */}
-            {visualizationMode === '2d' && !uploadedImage && (
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <h2 className="text-xl font-semibold mb-4">Select Wall</h2>
-                <div className="grid grid-cols-2 gap-2">
-                  {selectedRoom.walls.map((wall) => (
-                    <button
-                      key={wall.id}
-                      onClick={() => handleWallSelect(wall.id)}
-                      className={`px-4 py-2 rounded-lg transition-colors ${
-                        activeWall === wall.id
-                          ? 'bg-primary text-white'
-                          : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                      }`}
-                    >
-                      {wall.name}
-                    </button>
-                  ))}
-                </div>
+            <div className="bg-white rounded-lg p-4 shadow">
+              <h2 className="text-lg font-semibold mb-4">{translations.selectWall}</h2>
+              <div className="space-y-2">
+                {rooms[selectedRoom].walls.map((wall) => (
+                  <button
+                    key={wall}
+                    onClick={() => setActiveWall(wall)}
+                    className={`w-full py-2 px-4 rounded ${
+                      activeWall === wall
+                        ? 'bg-primary text-white'
+                        : 'bg-gray-100 hover:bg-gray-200'
+                    }`}
+                  >
+                    {wall}
+                  </button>
+                ))}
               </div>
-            )}
+            </div>
           </div>
 
-          {/* Main Content */}
-          <div className="lg:col-span-9">
-            <div className="bg-white rounded-xl shadow-sm p-6">
+          {/* Main Visualization Area */}
+          <div className="lg:w-3/4">
+            <div className="bg-white rounded-lg shadow p-4">
               {/* Toolbar */}
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={handleUndo}
-                    disabled={historyIndex <= 0 || visualizationMode === '3d'}
-                    className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                    title="Undo"
-                  >
-                    <FaUndo />
-                  </button>
-                  <button
-                    onClick={handleRedo}
-                    disabled={historyIndex >= history.length - 1 || visualizationMode === '3d'}
-                    className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                    title="Redo"
-                  >
-                    <FaRedo />
-                  </button>
-                  <button
-                    onClick={handleClearColors}
-                    className="p-2 rounded-lg hover:bg-gray-100 text-red-500"
-                    title="Clear Colors"
-                  >
-                    <FaTrash />
-                  </button>
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex gap-2">
+                  {visualizationMode === '2d' && (
+                    <>
+                      <button
+                        onClick={handleUndo}
+                        disabled={historyIndex <= 0}
+                        className="p-2 rounded hover:bg-gray-100 disabled:opacity-50"
+                        title={translations.undo}
+                      >
+                        <FaUndo />
+                      </button>
+                      <button
+                        onClick={handleRedo}
+                        disabled={historyIndex >= history.length - 1}
+                        className="p-2 rounded hover:bg-gray-100 disabled:opacity-50"
+                        title={translations.redo}
+                      >
+                        <FaRedo />
+                      </button>
+                    </>
+                  )}
                 </div>
-
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={handleDownload}
-                    className="p-2 rounded-lg hover:bg-gray-100"
-                    title="Download"
-                  >
-                    <FaDownload />
-                  </button>
-                  <button
-                    onClick={toggleVisualizationMode}
-                    className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-                  >
-                    {visualizationMode === '2d' ? (
-                      <><FaCube className="mr-2" /> Switch to 3D</>
-                    ) : (
-                      <><FaPalette className="mr-2" /> Switch to 2D</>
-                    )}
-                  </button>
-                </div>
+                <button
+                  onClick={handleDownload}
+                  className="flex items-center px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
+                >
+                  <FaDownload className="mr-2" />
+                  {translations.save}
+                </button>
               </div>
 
-              {/* Visualization Area */}
-              <div className="relative rounded-lg overflow-hidden bg-gray-100">
+              {/* Visualization Canvas/3D View */}
+              <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
                 {visualizationMode === '2d' ? (
-                  <>
-                    <canvas 
-                      ref={canvasRef}
-                      className="w-full h-auto"
-                    />
-                    {showTip && !uploadedImage && (
-                      <div className="absolute top-4 left-4 bg-white/90 rounded-lg p-4 shadow-lg max-w-sm">
-                        <div className="flex items-start">
-                          <FaInfoCircle className="text-primary mt-1 mr-2" />
-                          <div>
-                            <p className="font-medium">Getting Started</p>
-                            <p className="text-sm text-gray-600">Select a wall from the sidebar and choose a color to begin visualizing.</p>
-                          </div>
-                          <button 
-                            onClick={() => setShowTip(false)}
-                            className="ml-2 text-gray-400 hover:text-gray-600"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </>
+                  <canvas
+                    ref={canvasRef}
+                    className="w-full h-full"
+                  />
                 ) : (
-                  <RoomSimulation3D selectedColor={selectedColor} />
+                  <RoomSimulation3D
+                    roomType={selectedRoom}
+                    selectedColor={selectedColor}
+                    activeWall={activeWall}
+                  />
                 )}
               </div>
 
-              {/* Selected Color Info */}
-              <div className="mt-4 flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div 
-                    className="w-6 h-6 rounded-full"
-                    style={{ backgroundColor: selectedColor.hex }}
-                  />
-                  <span className="font-medium">{selectedColor.name}</span>
-                  <span className="text-gray-500">{selectedColor.description}</span>
+              {/* Help Text */}
+              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-start">
+                  <FaInfoCircle className="text-primary mt-1 mr-2" />
+                  <div>
+                    <p className="font-medium">{translations.tips}</p>
+                    <ul className="text-sm text-gray-600 mt-1">
+                      {visualizationMode === '2d' ? (
+                        <>
+                          <li>{translations.tips2d1}</li>
+                          <li>{translations.tips2d2}</li>
+                          <li>{translations.tips2d3}</li>
+                          <li>{translations.tips2d4}</li>
+                        </>
+                      ) : (
+                        <>
+                          <li>{translations.tips3d1}</li>
+                          <li>{translations.tips3d2}</li>
+                          <li>{translations.tips3d3}</li>
+                          <li>{translations.tips3d4}</li>
+                        </>
+                      )}
+                    </ul>
+                  </div>
                 </div>
-                {visualizationMode === '3d' && (
-                  <p className="text-sm text-gray-500">
-                    Tip: Drag to rotate, scroll to zoom
-                  </p>
-                )}
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ColorVisualizer
+export default ColorVisualizer;

@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { FaFilter, FaShoppingCart, FaPaintBrush, FaPaintRoller, FaTools, FaPalette, FaHome } from 'react-icons/fa'
+import { LanguageContext } from '../context/LanguageContext'; // <-- Add this import
 
 // Product data
 const allProducts = [
@@ -41,7 +42,7 @@ const allProducts = [
     color: "Ocean Blue",
     size: "10L",
     price: 2650,
-    image: "https://res.cloudinary.com/dyxu6ylng/image/upload/v1747093866/download_l4j3ef.jpgpeg",
+    image: "https://res.cloudinary.com/dyxu6ylng/image/upload/v1747139940/de67253439c2d3d55688c342d8e95c5f_flfq2m.avif",
     description: "Radiant interior paint with moisture resistance."
   },
   {
@@ -464,6 +465,8 @@ export const paintProducts = allProducts.filter(
 );
 
 const ProductCatalog = () => {
+  const { translations } = useContext(LanguageContext); // <-- Use translations
+
   // State for filters and products
   const [products, setProducts] = useState(allProducts)
   const [filters, setFilters] = useState({
@@ -557,11 +560,15 @@ const ProductCatalog = () => {
         return <FaPaintRoller />
       case 'Exterior Paint':
         return <FaHome />
-      case 'Brushes':
+      case 'Brush':
         return <FaPaintBrush />
       case 'Tools':
         return <FaTools />
       case 'Putty':
+        return <FaPalette />
+      case 'Metallic Paint':
+        return <FaPalette />
+      case 'Wood Paint':
         return <FaPalette />
       default:
         return <FaPaintRoller />
@@ -573,8 +580,8 @@ const ProductCatalog = () => {
       {/* Page Header */}
       <div className="bg-dark text-white py-12">
         <div className="container-custom">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">Paint Products & Supplies</h1>
-          <p className="text-xl">Everything you need for your painting project.</p>
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">{translations.productCatalogTitle}</h1>
+          <p className="text-xl">{translations.productCatalogSubtitle}</p>
         </div>
       </div>
       
@@ -586,30 +593,30 @@ const ProductCatalog = () => {
             onClick={toggleFilters}
           >
             <FaFilter className="mr-2" />
-            {showFilters ? 'Hide Filters' : 'Show Filters'}
+            {showFilters ? translations.clearFilters : translations.filters}
           </button>
           
           {/* Filters Sidebar */}
           <div className={`${showFilters ? 'block' : 'hidden'} md:block w-full md:w-1/4 bg-white p-6 rounded-lg shadow-sm h-fit`}>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold">Filters</h2>
+              <h2 className="text-xl font-semibold">{translations.filters}</h2>
               <button 
                 onClick={clearFilters}
                 className="text-sm text-primary hover:underline"
               >
-                Clear All
+                {translations.clearAll}
               </button>
             </div>
             
             {/* Category Filter */}
             <div className="mb-6">
-              <h3 className="font-medium mb-2">Category</h3>
+              <h3 className="font-medium mb-2">{translations.category}</h3>
               <select 
                 className="w-full p-2 border rounded-md"
                 value={filters.category}
                 onChange={(e) => handleFilterChange('category', e.target.value)}
               >
-                <option value="">All Categories</option>
+                <option value="">{translations.allCategories}</option>
                 {categories.map((category, index) => (
                   <option key={index} value={category}>{category}</option>
                 ))}
@@ -618,13 +625,13 @@ const ProductCatalog = () => {
 
             {/* Color Filter */}
             <div className="mb-6">
-              <h3 className="font-medium mb-2">Color</h3>
+              <h3 className="font-medium mb-2">{translations.color}</h3>
               <select 
                 className="w-full p-2 border rounded-md"
                 value={filters.color}
                 onChange={(e) => handleFilterChange('color', e.target.value)}
               >
-                <option value="">All Colors</option>
+                <option value="">{translations.allColors}</option>
                 {colors.map((color, index) => (
                   <option key={index} value={color}>{color}</option>
                 ))}
@@ -633,13 +640,13 @@ const ProductCatalog = () => {
 
             {/* Metallic Paint Filter */}
             <div className="mb-6">
-              <h3 className="font-medium mb-2">Metallic Paints</h3>
+              <h3 className="font-medium mb-2">{translations.metallicPaints}</h3>
               <select
                 className="w-full p-2 border rounded-md"
                 value={filters.metallic || ''}
                 onChange={e => handleFilterChange('metallic', e.target.value)}
               >
-                <option value="">All Metallic Paints</option>
+                <option value="">{translations.allMetallicPaints}</option>
                 {allProducts
                   .filter(p => p.category === 'Metallic Paint')
                   .map(p => p.color)
@@ -652,13 +659,13 @@ const ProductCatalog = () => {
 
             {/* Wood Paint Filter */}
             <div className="mb-6">
-              <h3 className="font-medium mb-2">Wood Paints</h3>
+              <h3 className="font-medium mb-2">{translations.woodPaints}</h3>
               <select
                 className="w-full p-2 border rounded-md"
                 value={filters.wood || ''}
                 onChange={e => handleFilterChange('wood', e.target.value)}
               >
-                <option value="">All Wood Paints</option>
+                <option value="">{translations.allWoodPaints}</option>
                 {allProducts
                   .filter(p => p.category === 'Wood Paint')
                   .map(p => p.color)
@@ -674,17 +681,17 @@ const ProductCatalog = () => {
           <div className="w-full md:w-3/4">
             {/* Sort Options */}
             <div className="flex justify-between items-center mb-6">
-              <p className="text-gray-600">{products.length} products</p>
+              <p className="text-gray-600">{translations.productsCount.replace("{{count}}", products.length)}</p>
               <div className="flex items-center">
-                <span className="mr-2 text-gray-600">Sort by:</span>
+                <span className="mr-2 text-gray-600">{translations.sortBy}</span>
                 <select 
                   className="p-2 border rounded-md"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                 >
-                  <option value="name">Name</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
+                  <option value="name">{translations.name}</option>
+                  <option value="price-low">{translations.priceLow}</option>
+                  <option value="price-high">{translations.priceHigh}</option>
                 </select>
               </div>
             </div>
@@ -727,12 +734,12 @@ const ProductCatalog = () => {
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-xl text-gray-600">No products match your filters.</p>
+                <p className="text-xl text-gray-600">{translations.noProducts}</p>
                 <button 
                   onClick={clearFilters}
                   className="mt-4 btn btn-primary"
                 >
-                  Clear Filters
+                  {translations.clearFilters}
                 </button>
               </div>
             )}

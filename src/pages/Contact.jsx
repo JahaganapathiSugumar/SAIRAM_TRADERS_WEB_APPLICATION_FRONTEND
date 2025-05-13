@@ -67,7 +67,7 @@ const Contact = () => {
       <div className="bg-primary text-white py-12">
         <div className="container-custom">
           <h1 className="text-3xl md:text-4xl font-bold mb-4">{translations.contactUs}</h1>
-          <p className="text-xl">Get in touch with our paint experts for personalized assistance.</p>
+          <p className="text-xl">{translations.getInTouch}</p>
         </div>
       </div>
 
@@ -75,16 +75,16 @@ const Contact = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {/* Contact Information */}
           <div>
-            <h2 className="text-2xl font-bold mb-6 dark:text-white">Get in Touch</h2>
+            <h2 className="text-2xl font-bold mb-6 dark:text-white">{translations.getInTouch}</h2>
             <div className="space-y-6">
               <div className="flex items-start space-x-4">
                 <div className="bg-primary text-white p-3 rounded-full">
                   <FaPhone className="text-xl" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold dark:text-white">Phone</h3>
+                  <h3 className="text-lg font-semibold dark:text-white">{translations.phone}</h3>
                   <p className="text-gray-600 dark:text-gray-300">+91 6380057594</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Monday to Saturday, 9:00 AM to 8:00 PM</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{translations.monSatHours}</p>
                 </div>
               </div>
 
@@ -93,9 +93,9 @@ const Contact = () => {
                   <FaEnvelope className="text-xl" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold dark:text-white">Email</h3>
+                  <h3 className="text-lg font-semibold dark:text-white">{translations.email}</h3>
                   <p className="text-gray-600 dark:text-gray-300">sairamtradersgobi@gmail.com</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">We'll respond within 24 hours</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{translations.respondWithin}</p>
                 </div>
               </div>
 
@@ -104,9 +104,9 @@ const Contact = () => {
                   <FaMapMarkerAlt className="text-xl" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold dark:text-white">Location</h3>
+                  <h3 className="text-lg font-semibold dark:text-white">{translations.location}</h3>
                   <p className="text-gray-600 dark:text-gray-300">10 Sathy Road, Karattadipalayam, Gobi</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Visit our showroom</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{translations.visitShowroom}</p>
                 </div>
               </div>
 
@@ -115,16 +115,16 @@ const Contact = () => {
                   <FaWhatsapp className="text-xl" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold dark:text-white">WhatsApp</h3>
+                  <h3 className="text-lg font-semibold dark:text-white">{translations.whatsapp}</h3>
                   <p className="text-gray-600 dark:text-gray-300">+91 6380057594</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Chat with us instantly</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{translations.chatInstantly}</p>
                 </div>
               </div>
             </div>
 
             {/* Map */}
             <div className="mt-8">
-              <h2 className="text-2xl font-bold mb-4 dark:text-white">Find Us</h2>
+              <h2 className="text-2xl font-bold mb-4 dark:text-white">{translations.findUs}</h2>
               <div className="rounded-lg overflow-hidden h-64">
                 <iframe 
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3915.2896761736087!2d77.4432013!3d11.0997983!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba907e78ae7013f%3A0x27c1b47941d63da4!2sSathy%20Rd%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1624451234567!5m2!1sen!2sin"
@@ -141,11 +141,11 @@ const Contact = () => {
           {/* Contact Form */}
           <div>
             <div className="bg-white dark:bg-gray-800 rounded-lg p-8 shadow-lg">
-              <h2 className="text-2xl font-bold mb-6 dark:text-white">Send us a Message</h2>
+              <h2 className="text-2xl font-bold mb-6 dark:text-white">{translations.sendMessage}</h2>
               {status.submitted && (
                 <div className="mb-6 p-4 bg-green-100 text-green-700 rounded-lg flex items-center">
                   <FaCheckCircle className="mr-2" />
-                  Thank you for your message. We'll get back to you soon!
+                  {translations.thankYouMessage}
                 </div>
               )}
               {status.error && (
@@ -156,7 +156,7 @@ const Contact = () => {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Name
+                    {translations.name}
                   </label>
                   <input
                     type="text"
@@ -171,7 +171,7 @@ const Contact = () => {
 
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Email
+                    {translations.emailLabel}
                   </label>
                   <input
                     type="email"
@@ -186,7 +186,7 @@ const Contact = () => {
 
                 <div>
                   <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Phone
+                    {translations.phoneLabel}
                   </label>
                   <input
                     type="tel"
@@ -201,7 +201,7 @@ const Contact = () => {
 
                 <div>
                   <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Message
+                    {translations.message}
                   </label>
                   <textarea
                     id="message"
@@ -221,26 +221,26 @@ const Contact = () => {
                     status.submitting ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
                 >
-                  {status.submitting ? 'Sending...' : 'Send Message'}
+                  {status.submitting ? translations.sending : translations.sendMessageBtn}
                 </button>
               </form>
             </div>
 
             {/* Business Hours */}
             <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg p-8 shadow-lg">
-              <h2 className="text-2xl font-bold mb-4 dark:text-white">Business Hours</h2>
+              <h2 className="text-2xl font-bold mb-4 dark:text-white">{translations.businessHours}</h2>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Monday - Friday</span>
+                  <span className="text-gray-600 dark:text-gray-300">{translations.mondayFriday}</span>
                   <span className="font-medium dark:text-white">9:00 AM - 8:00 PM</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Saturday</span>
+                  <span className="text-gray-600 dark:text-gray-300">{translations.saturday}</span>
                   <span className="font-medium dark:text-white">9:00 AM - 6:00 PM</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Sunday</span>
-                  <span className="font-medium text-red-500">Closed</span>
+                  <span className="text-gray-600 dark:text-gray-300">{translations.sunday}</span>
+                  <span className="font-medium text-red-500">{translations.closed}</span>
                 </div>
               </div>
             </div>

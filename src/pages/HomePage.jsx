@@ -182,7 +182,7 @@ const HomePage = () => {
                   <p className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-200">Homeowner</p>
                 </div>
               </div>
-              <p className="text-gray-600 dark:text-gray-300 transition-colors duration-200">"The color consultation service was incredible. They helped me choose the perfect palette for my open-concept living space, and I couldn't be happier with the results!"</p>
+              <p className="text-gray-600 dark:text-gray-300 transition-colors duration-200">{translations.testimonialSarah}</p>
             </div>
             
             <div className="card p-8 dark:bg-gray-700 transition-colors duration-200 hover:shadow-xl transform hover:scale-105 transition-all duration-300">
@@ -193,7 +193,7 @@ const HomePage = () => {
                   <p className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-200">Restaurant Owner</p>
                 </div>
               </div>
-              <p className="text-gray-600 dark:text-gray-300 transition-colors duration-200">"Sairam Traders helped us create the perfect atmosphere in our restaurant. Their commercial-grade paints have held up beautifully even in our high-traffic environment."</p>
+              <p className="text-gray-600 dark:text-gray-300 transition-colors duration-200">{translations.testimonialMichael}</p>
             </div>
             
             <div className="card p-8 dark:bg-gray-700 transition-colors duration-200 hover:shadow-xl transform hover:scale-105 transition-all duration-300">
@@ -204,7 +204,7 @@ const HomePage = () => {
                   <p className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-200">Interior Designer</p>
                 </div>
               </div>
-              <p className="text-gray-600 dark:text-gray-300 transition-colors duration-200">"As an interior designer, I rely on Sairam Traders for all my projects. Their custom color mixing service allows me to create unique spaces for each of my clients."</p>
+              <p className="text-gray-600 dark:text-gray-300 transition-colors duration-200">{translations.testimonialEmily}</p>
             </div>
           </div>
         </div>

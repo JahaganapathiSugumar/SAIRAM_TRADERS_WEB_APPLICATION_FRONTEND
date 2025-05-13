@@ -1,15 +1,17 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaFlask, FaPalette, FaCog, FaCheck, FaArrowRight } from 'react-icons/fa';
+import { LanguageContext } from '../context/LanguageContext';
 
 const ColorMixing = () => {
   const [selectedColor, setSelectedColor] = useState('#6A8CAF');
   const navigate = useNavigate();
+  const { translations } = useContext(LanguageContext);
 
   const handleGetColorMixed = () => {
     navigate('/contact', { 
       state: { 
-        message: `I would like to request a custom color mixing for the color code: ${selectedColor}.`
+        message: `${translations.getColorMixed} ${selectedColor}.`
       }
     });
   };
@@ -17,41 +19,41 @@ const ColorMixing = () => {
   const features = [
     {
       icon: <FaPalette className="text-4xl text-primary mb-4" />,
-      title: "Precise Color Matching",
-      description: "Our advanced spectrophotometer can match any color sample with 99.9% accuracy."
+      title: translations.preciseMatching,
+      description: translations.preciseMatchingDesc
     },
     {
       icon: <FaFlask className="text-4xl text-primary mb-4" />,
-      title: "Instant Mixing",
-      description: "Watch as your custom color is created in minutes using our automated mixing system."
+      title: translations.instantMixing,
+      description: translations.instantMixingDesc
     },
     {
       icon: <FaCog className="text-4xl text-primary mb-4" />,
-      title: "Quality Control",
-      description: "Every batch is tested to ensure perfect color consistency and quality."
+      title: translations.qualityControl,
+      description: translations.qualityControlDesc
     }
   ];
 
   const steps = [
     {
       number: "01",
-      title: "Bring Your Sample",
-      description: "Bring any color sample - a fabric swatch, paint chip, or even a photo."
+      title: translations.bringYourSample,
+      description: translations.bringYourSampleDesc
     },
     {
       number: "02",
-      title: "Color Analysis",
-      description: "Our machine analyzes the color using advanced spectrophotometer technology."
+      title: translations.colorAnalysis,
+      description: translations.colorAnalysisDesc
     },
     {
       number: "03",
-      title: "Formula Creation",
-      description: "The system creates a precise formula to match your color."
+      title: translations.formulaCreation,
+      description: translations.formulaCreationDesc
     },
     {
       number: "04",
-      title: "Mixing & Testing",
-      description: "We mix your custom color and test it for accuracy."
+      title: translations.mixingTesting,
+      description: translations.mixingTestingDesc
     }
   ];
 
@@ -65,15 +67,15 @@ const ColorMixing = () => {
         }}
       >
         <div className="container-custom text-center text-white">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">Create Your Perfect Shade</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">{translations.createPerfectShade}</h1>
           <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Experience our state-of-the-art color mixing technology to create any color you can imagine.
+            {translations.colorMixingDesc}
           </p>
           <a 
             href="#how-it-works" 
             className="btn btn-primary inline-flex items-center"
           >
-            Learn How It Works <FaArrowRight className="ml-2" />
+            {translations.learnHow} <FaArrowRight className="ml-2" />
           </a>
         </div>
       </div>
@@ -82,9 +84,9 @@ const ColorMixing = () => {
       <section className="py-16 bg-white dark:bg-gray-800">
         <div className="container-custom">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4 dark:text-white">Advanced Color Mixing Technology</h2>
+            <h2 className="text-3xl font-bold mb-4 dark:text-white">{translations.advancedMixing}</h2>
             <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Our computerized color mixing system ensures perfect accuracy and consistency every time.
+              {translations.advancedMixingDesc}
             </p>
           </div>
 
@@ -104,9 +106,9 @@ const ColorMixing = () => {
       <section id="how-it-works" className="py-16 bg-light dark:bg-gray-900">
         <div className="container-custom">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4 dark:text-white">How It Works</h2>
+            <h2 className="text-3xl font-bold mb-4 dark:text-white">{translations.howItWorks}</h2>
             <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Get your perfect custom color in four simple steps
+              {translations.howItWorksDesc}
             </p>
           </div>
 
@@ -134,9 +136,9 @@ const ColorMixing = () => {
         <div className="container-custom">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4 dark:text-white">Try Our Color Picker</h2>
+              <h2 className="text-3xl font-bold mb-4 dark:text-white">{translations.tryColorPicker}</h2>
               <p className="text-gray-600 dark:text-gray-300">
-                Choose a color to see how it might look. Visit our store to create this exact shade!
+                {translations.colorMixingDesc}
               </p>
             </div>
 
@@ -151,7 +153,7 @@ const ColorMixing = () => {
                 <div className="w-full md:w-1/2 space-y-6">
                   <div>
                     <label className="block text-sm font-medium dark:text-white mb-2">
-                      Select Your Color
+                      {translations.selectColor}
                     </label>
                     <input
                       type="color"
@@ -161,14 +163,14 @@ const ColorMixing = () => {
                     />
                   </div>
                   <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                    <p className="text-sm font-medium dark:text-white">Selected Color:</p>
+                    <p className="text-sm font-medium dark:text-white">{translations.selectedColor}</p>
                     <p className="font-mono text-lg dark:text-white">{selectedColor}</p>
                   </div>
                   <button 
                     onClick={handleGetColorMixed}
                     className="btn btn-primary w-full"
                   >
-                    Get This Color Mixed
+                    {translations.getColorMixed}
                   </button>
                 </div>
               </div>
@@ -180,16 +182,16 @@ const ColorMixing = () => {
       {/* CTA Section */}
       <section className="py-16 bg-primary text-white">
         <div className="container-custom text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to Create Your Custom Color?</h2>
+          <h2 className="text-3xl font-bold mb-4">{translations.readyToCreate}</h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Visit our store to experience our color mixing technology in person and create your perfect shade.
+            {translations.ctaColorMixing}
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link to="/contact" className="btn bg-white text-primary hover:bg-gray-100">
-              Contact Us
+              {translations.contactUs}
             </Link>
             <Link to="/visualizer" className="btn border-2 border-white hover:bg-white hover:text-primary">
-              Try Color Visualizer
+              {translations.tryVisualizer}
             </Link>
           </div>
         </div>
