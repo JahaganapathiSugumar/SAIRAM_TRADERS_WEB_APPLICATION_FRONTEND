@@ -178,7 +178,7 @@ const HomePage = () => {
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 bg-primary rounded-full mr-4 flex items-center justify-center text-white font-bold">SJ</div>
                 <div>
-                  <h4 className="font-semibold dark:text-white transition-colors duration-200">Sarah Johnson</h4>
+                  <h4 className="font-semibold dark:text-white transition-colors duration-200">Ram</h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-200">Homeowner</p>
                 </div>
               </div>
@@ -189,7 +189,7 @@ const HomePage = () => {
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 bg-secondary rounded-full mr-4 flex items-center justify-center text-white font-bold">MC</div>
                 <div>
-                  <h4 className="font-semibold dark:text-white transition-colors duration-200">Michael Chen</h4>
+                  <h4 className="font-semibold dark:text-white transition-colors duration-200">Sita</h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-200">Restaurant Owner</p>
                 </div>
               </div>
@@ -200,7 +200,7 @@ const HomePage = () => {
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 bg-accent rounded-full mr-4 flex items-center justify-center text-white font-bold">ER</div>
                 <div>
-                  <h4 className="font-semibold dark:text-white transition-colors duration-200">Emily Rodriguez</h4>
+                  <h4 className="font-semibold dark:text-white transition-colors duration-200">Ashwin</h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-200">Interior Designer</p>
                 </div>
               </div>
