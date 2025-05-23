@@ -12,10 +12,8 @@ const PaintCalculator = () => {
     height: '',
     doors: 0,
     windows: 0,
-    doorWidth: 0.9,
-    doorHeight: 2.1,
-    windowWidth: 1.2,
-    windowHeight: 1.25,
+    doorDimensions: [{ width: 0.9, height: 2.1 }],
+    windowDimensions: [{ width: 1.2, height: 1.25 }],
     coats: 2
   });
 
@@ -45,16 +43,84 @@ const PaintCalculator = () => {
     }));
   };
 
+  const handleDoorDimensionChange = (index, field, value) => {
+    const newDoorDimensions = [...dimensions.doorDimensions];
+    newDoorDimensions[index][field] = parseFloat(value) || 0;
+    setDimensions(prev => ({
+      ...prev,
+      doorDimensions: newDoorDimensions
+    }));
+  };
+
+  const handleWindowDimensionChange = (index, field, value) => {
+    const newWindowDimensions = [...dimensions.windowDimensions];
+    newWindowDimensions[index][field] = parseFloat(value) || 0;
+    setDimensions(prev => ({
+      ...prev,
+      windowDimensions: newWindowDimensions
+    }));
+  };
+
+  useEffect(() => {
+    // Update door dimensions array when number of doors changes
+    if (dimensions.doors > dimensions.doorDimensions.length) {
+      // Add new doors with default dimensions
+      const newDoors = Array(dimensions.doors - dimensions.doorDimensions.length)
+        .fill()
+        .map(() => ({ width: 0.9, height: 2.1 }));
+      setDimensions(prev => ({
+        ...prev,
+        doorDimensions: [...prev.doorDimensions, ...newDoors]
+      }));
+    } else if (dimensions.doors < dimensions.doorDimensions.length) {
+      // Remove extra doors
+      setDimensions(prev => ({
+        ...prev,
+        doorDimensions: prev.doorDimensions.slice(0, dimensions.doors)
+      }));
+    }
+  }, [dimensions.doors]);
+
+  useEffect(() => {
+    // Update window dimensions array when number of windows changes
+    if (dimensions.windows > dimensions.windowDimensions.length) {
+      // Add new windows with default dimensions
+      const newWindows = Array(dimensions.windows - dimensions.windowDimensions.length)
+        .fill()
+        .map(() => ({ width: 1.2, height: 1.25 }));
+      setDimensions(prev => ({
+        ...prev,
+        windowDimensions: [...prev.windowDimensions, ...newWindows]
+      }));
+    } else if (dimensions.windows < dimensions.windowDimensions.length) {
+      // Remove extra windows
+      setDimensions(prev => ({
+        ...prev,
+        windowDimensions: prev.windowDimensions.slice(0, dimensions.windows)
+      }));
+    }
+  }, [dimensions.windows]);
+
   useEffect(() => {
     if (dimensions.length && dimensions.width && dimensions.height && selectedPaint) {
       const totalArea = 2 * dimensions.height * (Number(dimensions.length) + Number(dimensions.width));
-      const doorArea = dimensions.doors * (dimensions.doorWidth * dimensions.doorHeight);
-      const windowArea = dimensions.windows * (dimensions.windowWidth * dimensions.windowHeight);
+      
+      // Calculate total door area
+      const doorArea = dimensions.doorDimensions.reduce(
+        (sum, door) => sum + (door.width * door.height), 0
+      );
+      
+      // Calculate total window area
+      const windowArea = dimensions.windowDimensions.reduce(
+        (sum, window) => sum + (window.width * window.height), 0
+      );
+      
       const paintableArea = totalArea - doorArea - windowArea;
       const baseAmount = paintableArea / PAINT_COVERAGE;
       const totalAmount = baseAmount * dimensions.coats;
       const litersNeeded = Math.ceil(totalAmount);
       const estimatedCost = litersNeeded * PAINT_PRICE;
+      
       setResults({
         totalArea: totalArea.toFixed(2),
         paintableArea: paintableArea.toFixed(2),
@@ -164,10 +230,10 @@ const PaintCalculator = () => {
               </div>
             </div>
 
-            {/* Doors and Windows Section */}
+            {/* Doors Section */}
             <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-4 dark:text-white">{translations.numberOfDoors} & {translations.numberOfWindows}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <h3 className="text-lg font-semibold mb-4 dark:text-white">{translations.numberOfDoors}</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     {translations.numberOfDoors}
@@ -181,7 +247,56 @@ const PaintCalculator = () => {
                     className="w-full px-3 py-2 border rounded-md focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
                 </div>
+              </div>
 
+              {dimensions.doors > 0 && (
+                <div className="mb-6">
+                  <h4 className="text-md font-medium mb-2 dark:text-white">{translations.doorDimensions}</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {dimensions.doorDimensions.map((door, index) => (
+                      <div key={index} className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                        <p className="text-sm font-medium mb-2 dark:text-white">
+                          {translations.door} #{index + 1}
+                        </p>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-xs text-gray-600 dark:text-gray-300 mb-1">
+                              {translations.width} (length in m)
+                            </label>
+                            <input
+                              type="number"
+                              value={door.width}
+                              onChange={(e) => handleDoorDimensionChange(index, 'width', e.target.value)}
+                              min="0"
+                              step="0.1"
+                              className="w-full px-2 py-1 text-sm border rounded-md focus:ring-primary focus:border-primary dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600 dark:text-gray-300 mb-1">
+                              {translations.height} (width in m)
+                            </label>
+                            <input
+                              type="number"
+                              value={door.height}
+                              onChange={(e) => handleDoorDimensionChange(index, 'height', e.target.value)}
+                              min="0"
+                              step="0.1"
+                              className="w-full px-2 py-1 text-sm border rounded-md focus:ring-primary focus:border-primary dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Windows Section */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold mb-4 dark:text-white">{translations.numberOfWindows}</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     {translations.numberOfWindows}
@@ -196,6 +311,49 @@ const PaintCalculator = () => {
                   />
                 </div>
               </div>
+
+              {dimensions.windows > 0 && (
+                <div className="mb-6">
+                  <h4 className="text-md font-medium mb-2 dark:text-white">{translations.windowDimensions}</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {dimensions.windowDimensions.map((window, index) => (
+                      <div key={index} className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                        <p className="text-sm font-medium mb-2 dark:text-white">
+                          {translations.window} #{index + 1}
+                        </p>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-xs text-gray-600 dark:text-gray-300 mb-1">
+                              {translations.width} (length in m)
+                            </label>
+                            <input
+                              type="number"
+                              value={window.width}
+                              onChange={(e) => handleWindowDimensionChange(index, 'width', e.target.value)}
+                              min="0"
+                              step="0.1"
+                              className="w-full px-2 py-1 text-sm border rounded-md focus:ring-primary focus:border-primary dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600 dark:text-gray-300 mb-1">
+                              {translations.height} (width in m)
+                            </label>
+                            <input
+                              type="number"
+                              value={window.height}
+                              onChange={(e) => handleWindowDimensionChange(index, 'height', e.target.value)}
+                              min="0"
+                              step="0.1"
+                              className="w-full px-2 py-1 text-sm border rounded-md focus:ring-primary focus:border-primary dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Results Section */}
